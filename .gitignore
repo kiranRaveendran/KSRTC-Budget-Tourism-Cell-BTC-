@@ -1,0 +1,15 @@
+BTS_Project/db.sqlite3
+BTS_Project/admin_panel/__pycache__
+BTS_Project/admin_panel/migrations
+BTS_Project/BTS_Project/__pycache__
+BTS_Project/depot_management/__pycache__
+BTS_Project/depot_management/migrations
+BTS_Project/hotel_management/__pycache__
+BTS_Project/hotel_management/migrations
+BTS_Project/payment/__pycache__
+BTS_Project/payment/migrations
+BTS_Project/tourister/__pycache__
+BTS_Project/tourister/migrations
+BTS_venv
+
+
