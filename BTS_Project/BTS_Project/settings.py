@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'rest_framework_simplejwt',
 
     'tourister',
@@ -55,6 +56,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'BTS_Project.urls'
@@ -152,3 +155,21 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+# import os
+
+# EMAIL_HOST_USER = os.environ.get('BREVO_SMTP_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('BREVO_SMTP_KEY')
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"       # IMPORTANT — Brevo SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "9c72bd001@smtp-brevo.com"   # your Brevo login email
+EMAIL_HOST_PASSWORD = "xsmtpsib-7c89c182f1e8340c7427e2446e40a0efd58445c59bffaa643f68d9b28b029f98-xoNQvvIIJMVu98ah"
+DEFAULT_FROM_EMAIL = "KSRTC Budget Tourism <sreeramrs0502@gmail.com>"
+

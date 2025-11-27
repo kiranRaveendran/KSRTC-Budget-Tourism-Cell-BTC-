@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KSRTC BTC - Login</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- AXIOS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-rose-50 to-amber-50">
+
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div class="container max-w-4xl">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 shadow-xl rounded-2xl overflow-hidden bg-white">
+
+        <!-- LEFT SIDE -->
+        <div class="bg-gradient-to-b from-rose-600 to-rose-800 text-white flex flex-col justify-center items-center p-10 md:p-12">
+
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/747/747376.png" 
+            alt="User Icon" 
+            class="w-24 mb-5"
+          />
+
+          <h1 class="text-2xl md:text-3xl font-bold text-center">
+            KSRTC Budget Tourism
+          </h1>
+
+          <p class="text-center text-sm mt-3 max-w-sm leading-relaxed">
+            Explore Kerala with comfort and affordability. 
+            Book your dream trip with KSRTC BTC.
+          </p>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="p-10 md:p-12">
+
+          <h2 class="font-bold text-rose-700 text-3xl font-bold">Welcome Back</h2>
+          <p class="text-gray-500 mt-1">
+             Sign in to book and manage your KSRTC tours.
+          </p>
+
+          <form id="loginForm" class="mt-8 space-y-5">
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Username</label>
+              <input 
+                type="text"
+                id="username"
+                class="w-full border rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-[#b70e32] outline-none"
+                placeholder="Enter username"
+                required
+              />
+              <p id="usernameMsg" class="text-sm mt-1"></p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Password</label>
+              <input 
+                type="password"
+                id="password"
+                class="w-full border rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-[#b70e32] outline-none"
+                placeholder="Enter password"
+                required
+              />
+              <p id="passwordMsg" class="text-sm mt-1"></p>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-lg text-lg font-semibold transition"
+            >
+              SIGN IN
+            </button>
+          </form>
+
+          <p class="mt-6 text-center text-gray-600">
+            Don't have an account?
+            <a href="{% url 'frontend_signup' %}" class="text-[#b70e32] font-semibold hover:underline">
+    Sign up
+</a>
+
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCRIPT -->
+  <script>
+    const form = document.getElementById("loginForm");
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.innerText = msg;
+      el.style.color = "red";
+    }
+
+    function validateLogin() {
+      let isValid = true;
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // Username validation
+      if (username.length < 3) {
+        showError("usernameMsg", "Username must be at least 3 characters");
+        isValid = false;
+      } else {
+        document.getElementById("usernameMsg").innerText = "";
+      }
+
+      
+      if (password.length < 6) {
+        showError("passwordMsg", "Password must be at least 6 characters");
+        isValid = false;
+      } else {
+        document.getElementById("passwordMsg").innerText = "";
+      }
+
+      return isValid;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!validateLogin()) {
+        return; 
+      }
+
+      const data = {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value,
+      };
+
+      try {
+        const res = await axios.post(
+          "http://127.0.0.1:8000/tourister/login/",
+          data,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        alert("Login Successful!");
+        console.log("Token:", res.data.token);
+
+        
+        window.location.href = "{% url 'index' %}";
+
+
+      } catch (err) {
+        console.log(err);
+        alert("Login Failed: " + JSON.stringify(err.response.data));
+      }
+    });
+  </script>
+
+</body>
+</html>
