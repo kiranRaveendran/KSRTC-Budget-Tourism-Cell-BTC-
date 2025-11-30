@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import SignupSerializer, RateReviewSerializer
+from .serializers import SignupSerializer, RateReviewSerializer, BookingSerializer
 from django.views.generic import TemplateView
-from .models import RateReview, Package_Booking
+from .models import RateReview, Booking
+from rest_framework.authtoken.models import Token
+from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
@@ -146,6 +148,9 @@ class Login(APIView):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
+# class Logout (APIView):
+    
+# -------------------- RATE & REVIEW --------------------
 class RateReviewAPI(APIView):
     permission_classes = [permissions.AllowAny]  
 
@@ -163,8 +168,67 @@ class RateReviewAPI(APIView):
         reviews = RateReview.objects.all()
         serializer = RateReviewSerializer(reviews, many=True)
         return Response(serializer.data)
-    
-    
+
+
+class Package_BookingAPI(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk=None):
+        if pk:
+            try:
+                booking = Booking.objects.get(pk=pk)
+            except Booking.DoesNotExist:
+                return Response({"error": "Booking not found"}, status=404)
+
+            serializer = BookingSerializer(booking)
+            return Response(serializer.data)
+
+        bookings = Booking.objects.all()
+        serializer = BookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = BookingSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+    def put(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        serializer = BookingSerializer(booking, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=400)
+
+    def patch(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        serializer = BookingSerializer(booking, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        try:
+            booking = Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        booking.delete()
+        return Response({"message": "Booking deleted successfully"}, status=200)
+
 
 # -------------------- FRONTEND PAGES --------------------
 class Package_details(TemplateView):
@@ -196,3 +260,15 @@ class Package_list(TemplateView):
     
 class My_Booking(TemplateView):
     template_name="my_booking.html"
+    
+    
+class LogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            token = Token.objects.get(user=request.user)
+            token.delete()
+        except Token.DoesNotExist:
+            pass 
+        return HttpResponseRedirect('/login/')

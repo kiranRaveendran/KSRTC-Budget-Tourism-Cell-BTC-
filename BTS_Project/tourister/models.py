@@ -17,9 +17,10 @@ class RateReview(models.Model):
         return f"{self.user.username} - {self.rating}"
 
 
-class Package_Booking(models.Model):
+class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     package = models.ForeignKey(Package_Details, on_delete=models.CASCADE)
+    bus = models.ForeignKey(BusDetails, on_delete=models.SET_NULL, null=True, blank=True)
 
     adults = models.PositiveIntegerField(default=1)
     children = models.PositiveIntegerField(default=0)

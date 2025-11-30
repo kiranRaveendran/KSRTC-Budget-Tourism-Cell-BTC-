@@ -341,11 +341,20 @@ document.getElementById("package_number").innerHTML = `Package Number: ${data.id
 const adults = document.getElementById("adults");
 const children = document.getElementById("children");
 
+// Increase / decrease adults & children
+function changeCount(id, change) {
+  const input = document.getElementById(id);
+  let value = parseInt(input.value);
 
+  value += change;
 
+  if (id === "adults" && value < 1) value = 1;   // Adults minimum = 1
+  if (id === "children" && value < 0) value = 0; // Children minimum = 0
 
-// You can call total price calculation here  
-  // calculateTotal();
+  input.value = value;
+  calculateTotal();
+}
+
 
 
     </script>

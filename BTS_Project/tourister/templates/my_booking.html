@@ -47,41 +47,24 @@
 
     <!-- Booking Table -->
     <div class="overflow-x-auto">
-      <table class="min-w-full bg-white mt-5 shadow-lg rounded-lg overflow-hidden">
-        <thead class="bg-red-600 text-white text-sm font-semibold">
-          <tr>
-            <th class="py-3 px-4 text-left">Package</th>
-            <th class="py-3 px-4 text-left">Package Date</th>
-            <th class="py-3 px-4 text-left">Booking Date</th>
-            <th class="py-3 px-4 text-left">Validity</th>
-            <th class="py-3 px-4 text-left">Bus No</th>
-            <th class="py-3 px-4 text-left">Bus Name</th>
-            <th class="py-3 px-4 text-left">Passengers</th>
-            <th class="py-3 px-4 text-left">Total</th>
-            <th class="py-3 px-4 text-center">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="text-gray-700 text-sm">
-          <tr class="border-b hover:bg-gray-50 transition">
-            <td class="py-3 px-4 font-medium">Goa Adventure</td>
-            <td class="py-3 px-4">15 Jan 2026</td>
-            <td class="py-3 px-4">28 Nov 2025</td>
-            <td class="py-3 px-4">15–20 Jan 2026</td>
-            <td class="py-3 px-4">GOA 12B</td>
-            <td class="py-3 px-4">Goa Cruiser</td>
-            <td class="py-3 px-4">Adults: 2, Children: 0</td>
-            <td class="py-3 px-4 font-semibold text-gray-800">$300</td>
-            <td class="py-3 px-4 text-center">
-              <div class="flex flex-col space-y-2">
-                <button class="px-3 py-1 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition">
-                  <i class="fas fa-times-circle mr-1"></i>Cancel
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <table class="min-w-full bg-white mt-5 shadow-lg rounded-lg overflow-hidden">
+    <thead class="bg-red-600 text-white text-sm font-semibold">
+      <tr>
+        <th class="py-3 px-4 text-left">Package</th>
+        <th class="py-3 px-4 text-left">Validity</th>
+        <th class="py-3 px-4 text-left">Bus No</th>
+        <th class="py-3 px-4 text-left">Bus Name</th>
+        <th class="py-3 px-4 text-left">Passengers</th>
+        <th class="py-3 px-4 text-left">Total</th>
+        <th class="py-3 px-4 text-left">Booking Date</th>
+        <th class="py-3 px-4 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="bookingTableBody" class="text-gray-700 text-sm">
+      <!-- Rows will be injected here -->
+    </tbody>
+  </table>
+</div>
   </div>
 
   <!-- Review Popup -->
@@ -176,36 +159,71 @@
       });
     }
 
-    // Submit review
-    function submitReview() {
-      let review = document.getElementById("reviewText").value.trim();
 
-      if (!selectedRating) {
-        alert("Please select a star rating!");
-        return;
-      }
+ const tableBody = document.getElementById("bookingTableBody");
 
-      if (!review) {
-        alert("Please enter your review!");
-        return;
-      }
+  // Replace with your API URL
+  const apiUrl = "http://127.0.0.1:8000/tourister/package_bookings/";
 
-      const reviewData = {
-        package: currentPackage,
-        rating: selectedRating,
-        review: review
-      };
+  // Fetch bookings
+  axios.get(apiUrl)
+    .then(response => {
+      const bookings = response.data; // array of booking objects
 
-      axios.post('/tourister/reviews/', reviewData)
-        .then(response => {
-          alert("Review submitted successfully!");
-          closeReviewPopup();
-        })
-        .catch(error => {
-          console.error(error.response ? error.response.data : error);
-          alert("Failed to submit review. Please try again.");
-        });
-    }
+      bookings.forEach(booking => {
+        const row = document.createElement("tr");
+        row.classList.add("border-b", "hover:bg-gray-50", "transition");
+
+        const packageName = booking.package.package_name || booking.package.title;
+        const bookingDate = new Date(booking.booking_date).toLocaleDateString();
+        const validity = `${booking.package.start_date} – ${booking.package.end_date}` || "";
+        const busNumber = booking.bus ? booking.bus.bus_number : "-";
+        const busName = booking.bus ? booking.bus.bus_name : "-";
+        const passengers = `Adults: ${booking.adults}, Children: ${booking.children}`;
+        const total = `&#8377;${booking.total_price}`;
+
+        row.innerHTML = `
+          <td class="py-3 px-4 font-medium">${packageName}</td>
+          <td class="py-3 px-4">${validity}</td>
+          <td class="py-3 px-4">${busNumber}</td>
+          <td class="py-3 px-4">${busName}</td>
+          <td class="py-3 px-4">${passengers}</td>
+          <td class="py-3 px-4 font-semibold text-gray-800">${total}</td>
+          <td class="py-3 px-4">${bookingDate}</td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex flex-col space-y-2">
+              <button class="px-3 py-1 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition" onclick="cancelBooking(${booking.id}, this)">
+                <i class="fas fa-times-circle mr-1"></i>Cancel
+              </button>
+            </div>
+          </td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching bookings:", error);
+      tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">Failed to load bookings.</td></tr>`;
+    });
+
+  // Cancel booking function
+  function cancelBooking(bookingId, btn) {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+    axios.delete(`${apiUrl}${bookingId}/`)
+      .then(res => {
+        alert(res.data.message);
+        // Remove row from table
+        btn.closest("tr").remove();
+      })
+      .catch(err => {
+        console.error("Cancel failed:", err);
+        alert("Failed to cancel booking.");
+      });
+  }
+
+   
   </script>
 
   {% include 'components/footer.html' %}
