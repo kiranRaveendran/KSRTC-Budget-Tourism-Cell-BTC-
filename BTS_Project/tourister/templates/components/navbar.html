@@ -6,21 +6,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>KSRTC BTC — Explore Kerala</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-  <style>
-    .glass {
-      background: rgba(255,255,255,0.72);
-      backdrop-filter: blur(6px);
-    }
-    .pill-shadow {
-      box-shadow: 0 8px 30px rgba(17,24,39,0.08);
-    }
-  </style>
 </head>
 
 <body class="font-sans text-gray-800">
 
-<!-- ✔ Place checkbox BEFORE the header -->
+<!-- Mobile toggle -->
 <input type="checkbox" id="menu-toggle" class="hidden peer">
 
 <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow h-20 flex items-center">
@@ -28,25 +18,25 @@
 
     <!-- LOGO -->
     <div class="flex items-center gap-1">
-      <img src="{% static 'images/logo.png' %}" alt="KSRTC" class="h-32 w-auto object-contain">
+      <img src="{% static 'images/logo.png' %}" alt="KSRTC" class="h-20 w-auto object-contain">
       <div>
         <h1 class="text-lg font-bold text-rose-700 leading-tight">KSRTC Budget Tourism Cell</h1>
-        <p class="text-xs text-gray-600">Explore Kerala — affordable & comfortable</p>
+        <p class="text-xs text-gray-600">Explore Kerala — Affordable & comfortable</p>
       </div>
     </div>
 
-    <!-- DESKTOP NAV -->
+    <!-- Desktop Nav -->
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
       <a href="{% url 'index' %}" class="hover:text-rose-700 transition">Home</a>
       <a href="#" class="hover:text-rose-700 transition">Packages</a>
-      <a href="#" class="hover:text-rose-700 transition">Itineraries</a>
       <a href="#" class="hover:text-rose-700 transition">About</a>
       <a href="#" class="hover:text-rose-700 transition">Contact</a>
-      <a href="login.html" class="px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Login</a>
+      
       <a href="signup.html" class="px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
+      <a href="login.html" class="px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Logout</a>
     </nav>
 
-    <!-- MOBILE MENU BUTTON -->
+    <!-- Mobile Menu Button -->
     <label for="menu-toggle" class="md:hidden cursor-pointer">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-rose-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -56,18 +46,29 @@
   </div>
 </header>
 
-<!-- ✔ Now peer works correctly -->
+<!-- Mobile Dropdown -->
 <div class="peer-checked:block hidden md:hidden bg-white border-t border-gray-100 shadow-md">
   <nav class="flex flex-col items-center py-4 space-y-3 text-sm font-medium">
     <a href="#" class="hover:text-rose-700 transition">Home</a>
     <a href="#" class="hover:text-rose-700 transition">Packages</a>
-    <a href="#" class="hover:text-rose-700 transition">Itineraries</a>
     <a href="#" class="hover:text-rose-700 transition">About</a>
     <a href="#" class="hover:text-rose-700 transition">Contact</a>
-    <a href="login.html" class="w-3/4 text-center px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Login</a>
+   
     <a href="signup.html" class="w-3/4 text-center px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
+    <a href="login.html" class="w-3/4 text-center px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Logout</a>
   </nav>
 </div>
+
+<!-- Auto Close Menu on Resize -->
+<script>
+  const menuToggle = document.getElementById("menu-toggle");
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768) {
+      menuToggle.checked = false;
+    }
+  });
+</script>
 
 </body>
 </html>

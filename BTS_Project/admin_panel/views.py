@@ -34,6 +34,7 @@ class Signup(APIView):
 class PackageAPI(APIView):
     permission_classes = [permissions.AllowAny]
 
+    
     def get(self, request, pk=None):
         if pk:
             try:
@@ -44,7 +45,29 @@ class PackageAPI(APIView):
             serializer = PackageSerializer(package)
             return Response(serializer.data)
 
+        # Filters
+        destination = request.GET.get('destination', '')
+        date = request.GET.get('date', '')
+        price = request.GET.get('price', '')
+
         packages = Package_Details.objects.all()
+
+        if destination:
+            packages = packages.filter(places__icontains=destination)
+
+        if date:
+            packages = packages.filter(start_date__lte=date, end_date__gte=date)
+
+        if price:
+            try:
+                price = int(price)
+                if price > 50000:
+                    packages = packages.filter(price__gt=50000)
+                else:
+                    packages = packages.filter(price__lte=price)
+            except ValueError:
+                pass  
+
         serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data)
 
