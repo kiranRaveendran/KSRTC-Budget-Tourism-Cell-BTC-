@@ -1,0 +1,25 @@
+from rest_framework import serializers
+from .models import BusDetails, BusRoute
+
+class BusRouteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusRoute
+        fields = ['id', 'bus', 'location', 'arrival_time', 'departure_time', 'description']
+
+
+class BusDetailsSerializer(serializers.ModelSerializer):
+    routes = BusRouteSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = BusDetails
+        fields = [
+            'id',
+            'user',
+            'package',
+            'bus_name',
+            'bus_number',
+            'route_name',
+            'total_seats',
+            'bus_type',
+            'routes'
+        ]
