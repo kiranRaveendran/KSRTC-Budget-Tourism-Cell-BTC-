@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import SignupSerializer, RateReviewSerializer, BookingSerializer
 from django.views.generic import TemplateView
-from .models import RateReview, Booking
+from .models import RateReview, Package_Booking
 from rest_framework.authtoken.models import Token
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
@@ -176,14 +176,14 @@ class Package_BookingAPI(APIView):
     def get(self, request, pk=None):
         if pk:
             try:
-                booking = Booking.objects.get(pk=pk)
-            except Booking.DoesNotExist:
+                booking = Package_Booking.objects.get(pk=pk)
+            except Package_Booking.DoesNotExist:
                 return Response({"error": "Booking not found"}, status=404)
 
             serializer = BookingSerializer(booking)
             return Response(serializer.data)
 
-        bookings = Booking.objects.all()
+        bookings = Package_Booking.objects.all()
         serializer = BookingSerializer(bookings, many=True)
         return Response(serializer.data)
 
@@ -196,8 +196,8 @@ class Package_BookingAPI(APIView):
 
     def put(self, request, pk):
         try:
-            booking = Booking.objects.get(pk=pk)
-        except Booking.DoesNotExist:
+            booking = Package_Booking.objects.get(pk=pk)
+        except Package_Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=404)
 
         serializer = BookingSerializer(booking, data=request.data)
@@ -209,8 +209,8 @@ class Package_BookingAPI(APIView):
 
     def patch(self, request, pk):
         try:
-            booking = Booking.objects.get(pk=pk)
-        except Booking.DoesNotExist:
+            booking = Package_Booking.objects.get(pk=pk)
+        except Package_Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=404)
 
         serializer = BookingSerializer(booking, data=request.data, partial=True)
@@ -222,8 +222,8 @@ class Package_BookingAPI(APIView):
 
     def delete(self, request, pk):
         try:
-            booking = Booking.objects.get(pk=pk)
-        except Booking.DoesNotExist:
+            booking = Package_Booking.objects.get(pk=pk)
+        except Package_Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=404)
 
         booking.delete()

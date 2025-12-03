@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from .models import Profile,RateReview,Booking,Package_Details,BusDetails
+from .models import Profile,RateReview,Package_Booking,Package_Details,BusDetails
 from admin_panel.serializers import PackageSerializer
 from depot_management.serializers import BusDetailsSerializer
 
@@ -41,7 +41,7 @@ class BookingSerializer(serializers.ModelSerializer):
     bus_id = serializers.IntegerField(write_only=True)
 
     class Meta:
-        model = Booking
+        model = Package_Booking
         fields = [
             'id', 'user', 'package', 'bus',
             'adults', 'children', 'boarding_point',
@@ -98,7 +98,7 @@ class BookingSerializer(serializers.ModelSerializer):
         bus.save()
 
         # Create booking
-        booking = Booking.objects.create(
+        booking = Package_Booking.objects.create(
             user=user,
             package=package,
             bus=bus,

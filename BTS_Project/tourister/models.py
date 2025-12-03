@@ -17,7 +17,7 @@ class RateReview(models.Model):
         return f"{self.user.username} - {self.rating}"
 
 
-class Booking(models.Model):
+class Package_Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     package = models.ForeignKey(Package_Details, on_delete=models.CASCADE)
     bus = models.ForeignKey(BusDetails, on_delete=models.SET_NULL, null=True, blank=True)
