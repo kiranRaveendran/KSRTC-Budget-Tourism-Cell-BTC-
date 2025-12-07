@@ -32,13 +32,16 @@ class SignupSerializer(serializers.ModelSerializer):
 
 
 class BookingSerializer(serializers.ModelSerializer):
-    user = SignupSerializer(read_only=True)
-    package = PackageSerializer(read_only=True)
-    bus = BusDetailsSerializer(read_only=True)
+    # Read-only fields
+    user = serializers.StringRelatedField(read_only=True)
+    package = serializers.StringRelatedField(read_only=True)
+    bus = serializers.StringRelatedField(read_only=True)
 
-    user_id = serializers.IntegerField(write_only=True)
     package_id = serializers.IntegerField(write_only=True)
-    bus_id = serializers.IntegerField(write_only=True)
+    adults = serializers.IntegerField()
+    children = serializers.IntegerField()
+    phone_number = serializers.CharField()
+    boarding_point = serializers.CharField()
 
     class Meta:
         model = Package_Booking
@@ -46,69 +49,54 @@ class BookingSerializer(serializers.ModelSerializer):
             'id', 'user', 'package', 'bus',
             'adults', 'children', 'boarding_point',
             'phone_number', 'total_price', 'booking_date',
-            'user_id', 'package_id', 'bus_id',
+            'package_id'
         ]
         read_only_fields = ['total_price', 'booking_date']
 
     def validate(self, data):
-        adults = data.get("adults")
-        children = data.get("children")
+        adults = data.get("adults", 0)
+        children = data.get("children", 0)
         total_passengers = adults + children
 
-        # Validate bus seats only on POST
-        bus_id = data.get("bus_id")
-        if bus_id:
-            try:
-                bus = BusDetails.objects.get(id=bus_id)
-            except BusDetails.DoesNotExist:
-                raise serializers.ValidationError({"bus_id": "Bus does not exist."})
+        package_id = data.get("package_id")
+        try:
+            package = Package_Details.objects.get(id=package_id)
+        except Package_Details.DoesNotExist:
+            raise serializers.ValidationError({"package_id": "Package does not exist."})
 
-            if bus.total_seats < total_passengers:
-                raise serializers.ValidationError(
-                    {"error": "Not enough available seats for this bus!"}
-                )
+        # Check available seats in the package's bus
+        bus = package.bus
+        if bus.total_seats < total_passengers:
+            raise serializers.ValidationError({"error": "Not enough available seats on this bus!"})
 
         return data
 
     def create(self, validated_data):
-        # Extract IDs
-        user_id = validated_data.pop("user_id")
+        user = self.context['request'].user  
         package_id = validated_data.pop("package_id")
-        bus_id = validated_data.pop("bus_id")
-
-        # Fetch objects
-        try:
-            user = User.objects.get(id=user_id)
-            package = Package_Details.objects.get(id=package_id)
-            bus = BusDetails.objects.get(id=bus_id)
-        except Exception:
-            raise serializers.ValidationError({"error": "Invalid user/package/bus ID"})
+        package = Package_Details.objects.get(id=package_id)
+        bus = package.bus  
 
         adults = validated_data.get("adults", 0)
         children = validated_data.get("children", 0)
         total_passengers = adults + children
 
-        # Calculate price with 50% discount for children
+    
         total_price = (adults * package.price) + (children * package.price * 0.5)
-
         validated_data["total_price"] = total_price
 
-        # Reduce seats
         bus.total_seats -= total_passengers
         bus.save()
 
-        # Create booking
         booking = Package_Booking.objects.create(
             user=user,
             package=package,
             bus=bus,
             **validated_data
         )
-
         return booking
 
     
-
 class RateReviewSerializer(serializers.ModelSerializer):
     user = SignupSerializer(read_only=True)
     user_id = serializers.IntegerField(write_only=True) 

@@ -274,11 +274,9 @@
       </div>
 
       <!-- Packages Grid -->
-      <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-        <!-- Card Template -->
+      <div id="packagesContainer" class="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+</div>
 
-        <div id="packagesContainer"></div>
-      </div>
 
       <!---Rate and Review page  -->
       <div class="text-center mb-8 mt-6">
@@ -311,17 +309,20 @@
       </div>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-      axios
-        .get("http://127.0.0.1:8000/admin_site/packages/")
-        .then((response) => {
-          const data = response.data;
-          const container = document.getElementById("packagesContainer");
+   <script>
+    
+  axios.get("http://127.0.0.1:8000/tourister/index/", {
+  headers: { "Accept": "application/json" }
+})
+  .then((response) => {
+    const data = response.data.packages; 
+    const container = document.getElementById("packagesContainer");
 
-          data.forEach((item) => {
-            const card = `
+    data.forEach((item) => {
+      const card = `
         <article class="relative group rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
           <img src="${item.image1}" alt="${item.package_name}" class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500">
+          
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
           
           <div class="absolute bottom-0 p-5 text-white">
@@ -331,46 +332,47 @@
             <button onclick="viewPackage(${item.id})"
               class="mt-3 bg-rose-600 hover:bg-rose-700 px-4 py-2 rounded-full text-sm font-medium transition duration-300 inline-flex items-center gap-2">
               Explore
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
             </button>
           </div>
         </article>
-        `;
+      `;
+      container.innerHTML += card;
+    });
+  })
+  .catch((error) => console.error("Error fetching packages:", error));
 
-            container.innerHTML += card;
-          });
-        })
 
-        .catch((error) => console.error("Error fetching packages:", error));
-      function viewPackage(id) {
-        window.location.href = "{% url 'Package_details' %}?id=" + id;
-      }
+function viewPackage(id) {
+  window.location.href = "{% url 'tourister:Packagedetails' %}?id=" + id;
+}
 
 window.onload = function () {
   const reviewsGrid = document.getElementById("reviewsGrid");
   const loadBtn = document.getElementById("loadBtn");
   const lessBtn = document.getElementById("lessBtn");
 
-  // hide Less button on page load
   lessBtn.classList.add("hidden");
   loadBtn.classList.add("hidden");
 
-  axios.get("http://127.0.0.1:8000/tourister/reviews/")
+  axios
+    .get("http://127.0.0.1:8000/tourister/index/")
     .then((response) => {
-      const reviews = response.data;
+      const reviews = response.data.reviews;
 
       let html = "";
 
       reviews.forEach((item, index) => {
         let stars = "";
         for (let i = 1; i <= 5; i++) {
-          stars += `<i class="fa-solid fa-star ${i <= item.rating ? "text-yellow-300" : "text-gray-300"}"></i>`;
+          stars += `<i class="fa-solid fa-star ${
+            i <= item.rating ? "text-yellow-300" : "text-gray-300"
+          }"></i>`;
         }
 
         html += `
-          <article class="bg-white rounded-md shadow p-5 ${index >= 3 ? "hidden extraReview" : ""}">
+          <article class="bg-white rounded-md shadow p-5 ${
+            index >= 3 ? "hidden extraReview" : ""
+          }">
             <h2 class="text-lg font-medium mb-2">${item.user.username}</h2>
             <div class="flex gap-1 mb-3">${stars}</div>
             <p class="text-gray-700 text-sm">${item.review || "No review provided"}</p>
@@ -380,23 +382,18 @@ window.onload = function () {
 
       reviewsGrid.innerHTML = html;
 
-      // SELECT AGAIN (after injecting HTML)
       const extraReviews = document.querySelectorAll(".extraReview");
 
-      // RESET BUTTON STATE AFTER LOAD
-      if (reviews.length > 3) {
-        loadBtn.classList.remove("hidden");  // show only "View More"
-      }
-      lessBtn.classList.add("hidden");        
+      if (reviews.length > 3) loadBtn.classList.remove("hidden");
 
-      // View More button
+      lessBtn.classList.add("hidden");
+
       loadBtn.onclick = () => {
         extraReviews.forEach((card) => card.classList.remove("hidden"));
         loadBtn.classList.add("hidden");
         lessBtn.classList.remove("hidden");
       };
 
-      // View Less button
       lessBtn.onclick = () => {
         extraReviews.forEach((card) => card.classList.add("hidden"));
         lessBtn.classList.add("hidden");
@@ -408,9 +405,7 @@ window.onload = function () {
       reviewsGrid.innerHTML = "<p class='text-red-500'>Failed to load reviews.</p>";
     });
 };
-
-
-    </script>
+</script>
 
     {% include 'components/footer.html' %}
   </body>
