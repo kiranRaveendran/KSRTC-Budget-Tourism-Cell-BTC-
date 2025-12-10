@@ -1,200 +1,172 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Form</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-</head>
-<body >
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Form</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+  </head>
+  <body>
     {% include 'components/navbar.html' %}
 
-  <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg mt-10">
-
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold text-gray-800">Booking Details</h2>
-      <h6 id="package_number_header" class="text-sm font-semibold text-rose-600"></h6>
-
-      
-    </div>
-
-    <!-- Package & Bus Details -->
-    <div class="mb-4 space-y-1">
-      <p><span class="font-semibold">Package:</span> <span id="package_name" class="text-rose-600">Loading...</span></p>
-    </div>
-
-    <!-- Booking Form -->
-    <form id="bookingForm" class="space-y-5">
-
-      <!-- Adults / Children -->
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Adults -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Number of Adults</label>
-          <input
-            type="number"
-            id="adults"
-            value=""
-            min=""
-            
-            class="w-full border border-gray-400 px-3 h-10 rounded text-sm text-center bg-gray-100"
-          />
-        </div>
-
-        <!-- Children -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Number of Children</label>
-          <input
-            type="number"
-            id="children"
-            value=""
-            min=""
-            
-            class="w-full border border-gray-400 px-3 h-10 rounded text-sm text-center bg-gray-100"
-          />
-        </div>
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg mt-10">
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Booking Details</h2>
+        <h6
+          id="package_number_header"
+          class="text-sm font-semibold text-rose-600"
+        ></h6>
       </div>
 
-      <!-- Phone & Boarding Point -->
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Phone -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Phone Number</label>
-          <input
-            type="text"
-            id="phone_number"
-            class="border border-gray-400 w-full px-3 h-10 rounded text-sm"
-            required
-          />
+      <!-- Package & Bus Details -->
+      <div class="mb-4 space-y-1">
+        <p>
+          <span class="font-semibold">Package:</span>
+          <span id="package_name" class="text-rose-600"></span>
+        </p>
+      </div>
+
+      <!-- Booking Form -->
+      <form id="bookingForm" class="space-y-5">
+        <!-- Adults / Children -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Adults -->
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              >Number of Adults</label
+            >
+            <input
+              type="number"
+              id="adults"
+              value=""
+              min=""
+              class="w-full border border-gray-400 px-3 h-10 rounded text-sm text-center bg-gray-100"
+            />
+          </div>
+
+          <!-- Children -->
+          <div>
+            <label class="block text-sm font-medium mb-1"
+              >Number of Children</label
+            >
+            <input
+              type="number"
+              id="children"
+              value=""
+              min=""
+              class="w-full border border-gray-400 px-3 h-10 rounded text-sm text-center bg-gray-100"
+            />
+          </div>
         </div>
 
-        <!-- Boarding -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Boarding Point</label>
-          <select
-            id="boardingDropdown"
-            class="border border-gray-400 w-full px-3 h-10 rounded text-sm"
+        <!-- Phone & Boarding Point -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Phone -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Phone Number</label>
+            <input
+              type="text"
+              id="phone_number"
+              class="border border-gray-400 w-full px-3 h-10 rounded text-sm"
+              required
+            />
+          </div>
+
+          <!-- Boarding -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Boarding Point</label>
+           <select id="boardingDropdown" class="border w-full h-10 rounded text-sm">
+  <option value="">-- Select Bus --</option>
+</select>
+
+          </div>
+        </div>
+
+
+        <!-- Confirm Button -->
+        <div class="flex justify-end pt-3">
+          <button
+            type="submit"
+            id="confirmBtn"
+            class="px-5 py-2 rounded-lg text-white font-bold bg-gradient-to-r from-rose-600 to-amber-400 shadow hover:opacity-90 transition"
           >
-            <option value="">-- Select Boarding Point --</option>
-            <option value="Nagercoil">Nagercoil</option>
-            <option value="Kanyakumari">Kanyakumari</option>
-            <option value="Marthandam">Marthandam</option>
-            <option value="Tirunelveli">Tirunelveli</option>
-          </select>
+            Confirm Booking
+          </button>
         </div>
-      </div>
+      </form>
+    </div>
 
-      <!-- Hidden Fields -->
-      <p id="package_number" class="hidden"></p>
-
-      <!-- Confirm Button -->
-      <div class="flex justify-end pt-3">
-        <button
-          type="submit"
-          id="confirmBtn"
-          class="px-5 py-2 rounded-lg text-white font-bold bg-gradient-to-r from-rose-600 to-amber-400 shadow hover:opacity-90 transition"
-        >
-          Confirm Booking
-        </button>
-      </div>
-    </form>
-  </div>
-
-  
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+ <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-// ----------------------------
-// GLOBAL VARIABLES
-// ----------------------------
-let currentPackageId = null;
-let currentBusId = null;
+  const packageId = new URLSearchParams(window.location.search).get("package_id");
+  const packageNameSpan = document.getElementById("package_name");
 
-// Get logged user ID
-const currentUserId = localStorage.getItem("user_id");
+  if (packageId) {
+    // Fetch package details from API using path parameter
+    axios
+      .get(`http://127.0.0.1:8000/tourister/packagebooking/${packageId}/`, {
+        headers: { Accept: "application/json" },
+      })
+      .then((response) => {
+        const packageData = response.data.package || response.data;
 
-if (!currentUserId) {
-  alert("User not logged in. Please login first.");
-}
+        // Display package name
+        packageNameSpan.innerText = packageData.package_name || packageData.title || "";
 
-// ----------------------------
-// FETCH PACKAGE + BUS DETAILS
-// ----------------------------
-const urlParams = new URLSearchParams(window.location.search);
-const packageId = urlParams.get("package_id");
+        // Populate bus dropdown
+        const busDropdown = document.getElementById("boardingDropdown");
+        if (packageData.buses && packageData.buses.length > 0) {
+          packageData.buses.forEach((bus) => {
+            if (bus.routes && bus.routes.length > 0) {
+              bus.routes.forEach((route) => {
+                busDropdown.innerHTML += `<option value="${route.location}">${route.location}</option>`;
+              });
+            }
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch package:", error);
+        packageNameSpan.innerText = "Package not found";
+      });
+  } else {
+    packageNameSpan.innerText = "Package ID missing";
+  }
 
-if (!packageId) {
-  alert("Package ID missing!");
-} else {
-  loadPackageDetails(packageId);
-}
+  // Handle booking form submission
+  document.getElementById("bookingForm").addEventListener("submit", function (e) {
+    e.preventDefault();
 
-function loadPackageDetails(packageId) {
-  axios.get(`http://127.0.0.1:8000/admin_site/packages/${packageId}/`)
-    .then(response => {
-      const pkg = response.data;
+    const bookingData = {
+      package_id: Number(packageId),
+      adults: Number(document.getElementById("adults").value),
+      children: Number(document.getElementById("children").value),
+      phone_number: document.getElementById("phone_number").value,
+      boarding_point: document.getElementById("boardingDropdown").value,
+    };
 
-      currentPackageId = pkg.id;
-
-      // Set bus ID
-      if (pkg.buses && pkg.buses.length > 0) {
-        currentBusId = pkg.buses[0].id;
-      } else {
-        currentBusId = null;
-      }
-    })
-    .catch(error => {
-      console.log("Package Load Error:", error);
-      alert("Failed to load package details!");
-    });
-}
-
-// ----------------------------
-// SUBMIT BOOKING FORM
-// ----------------------------
-document.getElementById("bookingForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  const bookingData = {
-    user: currentUserId,
-    package: currentPackageId,
-    bus: currentBusId,
-    adults: Number(document.getElementById("adults").value),
-    children: Number(document.getElementById("children").value),
-    phone_number: document.getElementById("phone_number").value,
-    boarding_point: document.getElementById("boardingDropdown").value
-  };
-
-  console.log("Sending Booking:", bookingData);
-
-  axios.post("http://127.0.0.1:8000/tourister/package_bookings/", bookingData)
-    .then(response => {
-      console.log(" Booking Success:", response.data);
-      alert("Booking Successful!");
-      window.location.href = "/booking-success/";
-    })
-    .catch(error => {
-      console.error("❌ Booking Error:", error.response?.data || error);
-      alert("Booking Failed — Check console for details.");
-    });
-});
+    axios
+      .post("http://127.0.0.1:8000/tourister/packagebooking/", bookingData, {
+        headers: { Accept: "application/json" },
+      })
+      console.log(bookingData)
+      .then((response) => {
+        alert("Booking Successful!");
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Booking failed:", error.response ? error.response.data : error);
+        alert("Booking failed");
+      });
+  });
 </script>
- 
-
-
-
-</script>
-
-
-
-  </script>
-{% include 'components/footer.html' %}
-</body>
+    {% include 'components/footer.html' %}
+  </body>
 </html>

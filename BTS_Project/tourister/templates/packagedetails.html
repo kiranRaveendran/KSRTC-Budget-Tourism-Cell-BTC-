@@ -9,30 +9,48 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Remix Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+      rel="stylesheet"
+    />
   </head>
 
-  <body class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen text-gray-800">
+  <body
+    class="bg-gradient-to-br from-rose-50 to-amber-50 min-h-screen text-gray-800"
+  >
     {% include 'components/navbar.html' %}
 
     <main class="max-w-7xl mx-auto px-6 py-8">
       <section class="grid grid-cols-1 lg:grid-cols-[7fr_4fr] gap-8">
-        
         <!-- LEFT SECTION -->
         <div class="space-y-4">
           <h2 id="packageName" class="text-3xl font-bold text-rose-600"></h2>
 
-          <img id="mainImage" class="w-full h-80 object-cover rounded-xl shadow" />
+          <img
+            id="mainImage"
+            class="w-full h-80 object-cover rounded-xl shadow"
+          />
 
           <div class="grid grid-cols-3 gap-3">
-            <img id="image1" class="h-24 w-full object-cover rounded-lg shadow" />
-            <img id="image2" class="h-24 w-full object-cover rounded-lg shadow" />
-            <img id="image3" class="h-24 w-full object-cover rounded-lg shadow" />
+            <img
+              id="image1"
+              class="h-24 w-full object-cover rounded-lg shadow"
+            />
+            <img
+              id="image2"
+              class="h-24 w-full object-cover rounded-lg shadow"
+            />
+            <img
+              id="image3"
+              class="h-24 w-full object-cover rounded-lg shadow"
+            />
           </div>
 
           <!-- Overview -->
           <section class="mt-10 bg-white p-6 rounded-xl shadow w-full">
-            <h3 class="text-xl font-bold text-white bg-rose-600 px-4 py-3 rounded-t-lg shadow -mx-6 -mt-6 mb-6">
+            <h3
+              class="text-xl font-bold text-white bg-rose-600 px-4 py-3 rounded-t-lg shadow -mx-6 -mt-6 mb-6"
+            >
               Package Overview
             </h3>
             <p id="overview" class="text-gray-600 leading-relaxed"></p>
@@ -40,22 +58,31 @@
 
           <!-- Itinerary -->
           <section class="mt-10 bg-white p-6 rounded-xl shadow w-full">
-            <h3 class="text-xl font-bold text-white bg-rose-600 px-4 py-3 rounded-t-lg shadow -mx-6 -mt-6 mb-6">
+            <h3
+              class="text-xl font-bold text-white bg-rose-600 px-4 py-3 rounded-t-lg shadow -mx-6 -mt-6 mb-6"
+            >
               Itinerary
             </h3>
 
-            <div class="space-y-6 text-sm text-gray-700" id="itineraryContainer"></div>
+            <div
+              class="space-y-6 text-sm text-gray-700"
+              id="itineraryContainer"
+            ></div>
           </section>
         </div>
 
         <!-- RIGHT SECTION -->
         <div class="space-y-4">
-
           <!-- PRICE CARD -->
           <div class="bg-white rounded-lg shadow overflow-hidden mt-12">
             <div class="bg-rose-600 px-4 py-4 text-center">
-              <p id="price" class="text-white font-bold text-3xl leading-tight"></p>
-              <span class="text-xs text-white/90">(Below 12 years - 50% discount)</span>
+              <p
+                id="price"
+                class="text-white font-bold text-3xl leading-tight"
+              ></p>
+              <span class="text-xs text-white/90"
+                >(Below 12 years - 50% discount)</span
+              >
             </div>
 
             <div class="p-4 space-y-4">
@@ -81,7 +108,11 @@
             </div>
 
             <div class="flex justify-center pb-4">
-              <a id="bookBtn" href="#" class="w-40 inline-block text-center bg-gradient-to-r from-rose-600 to-amber-400 text-white py-2 rounded-lg font-bold shadow">
+              <a
+                id="bookBtn"
+                href="#"
+                class="w-40 inline-block text-center bg-gradient-to-r from-rose-600 to-amber-400 text-white py-2 rounded-lg font-bold shadow"
+              >
                 BOOK NOW
               </a>
             </div>
@@ -89,8 +120,9 @@
 
           <!-- BUS DETAILS -->
           <div class="bus_details max-w-md mx-auto mt-6">
-            <div class="rounded-md overflow-hidden border border-gray-200 p-5 text-center shadow bg-white">
-              
+            <div
+              class="rounded-md overflow-hidden border border-gray-200 p-5 text-center shadow bg-white"
+            >
               <div class="bus mb-4">
                 <div class="flex gap-3 justify-center">
                   <p id="busName" class="text-[#E11D48] font-bold text-lg"></p>
@@ -106,12 +138,12 @@
               </div>
 
               <!-- Correct ID Here -->
-              <div class="bg-white p-4 text-left space-y-5 border border-gray-400 py-2 rounded-md" id="busRoute">
-              </div>
-
+              <div
+                class="bg-white p-4 text-left space-y-5 border border-gray-400 py-2 rounded-md py-5"
+                id="busRoute"
+              ></div>
             </div>
           </div>
-
         </div>
       </section>
     </main>
@@ -123,9 +155,11 @@
       const packageId = urlParams.get("id");
 
       axios
-        .get(`http://127.0.0.1:8000/admin_site/packages/${packageId}/`)
+        .get(`http://127.0.0.1:8000/tourister/packagedetails/${packageId}/`, {
+          headers: { Accept: "application/json" },
+        })
         .then((response) => {
-          const data = response.data;
+          const data = response.data.package;
 
           // ---- BASIC DETAILS ----
           document.getElementById("mainImage").src = data.image1;
@@ -140,8 +174,9 @@
           document.getElementById("starting date").innerText = data.start_date;
           document.getElementById("ending date").innerText = data.end_date;
 
-          document.getElementById("price").innerHTML =
-            `₹ ${data.price} <span class='text-sm italic font-bold text-white'>Per Person</span>`;
+          document.getElementById(
+            "price"
+          ).innerHTML = `₹ ${data.price} <span class='text-sm italic font-bold text-white'>Per Person</span>`;
 
           // ---- BUS DETAILS ----
           if (data.buses && data.buses.length > 0) {
@@ -149,11 +184,15 @@
 
             document.getElementById("busName").innerText = bus.bus_name;
             document.getElementById("busType").innerText = bus.bus_type;
-            document.getElementById("busNumber").innerText = "Bus No: " + bus.bus_number;
-            document.getElementById("totalSeats").innerText = bus.total_seats + " left";
-            document.getElementById("busRouteDate").innerHTML = `${data.start_date} &#8226; ${bus.route_name}`;
+            document.getElementById("busNumber").innerText =
+              "Bus No: " + bus.bus_number;
+            document.getElementById("totalSeats").innerText =
+              bus.total_seats + " left";
+            document.getElementById(
+              "busRouteDate"
+            ).innerHTML = `${data.start_date} &#8226; ${bus.route_name}`;
 
-            // ---- BUS ROUTES ----
+
             const routesContainer = document.getElementById("busRoute");
             routesContainer.innerHTML = "";
 
@@ -167,11 +206,11 @@
                       </div>
                     </div>
                     <div>
-                      <h6 class="font-bold">${route.name}</h6>
+                      <h6 class="font-bold">${route.location}</h6>
                       <p class="text-gray-500 text-sm mb-1">
-                        Arrival: ${route.arrival} • Departure: ${route.departure}
+                        Arrival: ${route.arrival_time} • Departure: ${route.departure_time}
                       </p>
-                      <p class="text-gray-600 text-sm">${route.details}</p>
+                      <p class="text-gray-600 text-sm">${route.description}</p>
                     </div>
                   </div>
                 `;
@@ -180,7 +219,6 @@
             }
           }
 
-          // ---- ITINERARY ----
           const itineraryDiv = document.getElementById("itineraryContainer");
           itineraryDiv.innerHTML = "";
 
@@ -188,9 +226,9 @@
             data.itineraries.forEach((item) => {
               itineraryDiv.innerHTML += `
                 <div class="flex items-start gap-4 border p-3 border-gray-300 rounded-md">
-                  <div class="h-10 w-10 flex items-center justify-center rounded-full bg-rose-600 text-white font-bold shadow">
-                    ${item.day_number}
-                  </div>
+                  <div class="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-full bg-rose-600 text-white font-bold shadow">
+    ${item.day_number}
+</div>
                   <div>
                     <h4 class="font-semibold text-rose-600">${item.title}</h4>
                     <p class="text-gray-700 leading-relaxed">${item.description}</p>
@@ -203,7 +241,7 @@
         .catch((error) => console.error("Error:", error));
 
       document.getElementById("bookBtn").addEventListener("click", function () {
-        window.location.href = `/tourister/package_booking_frontend/?package_id=${packageId}`;
+        window.location.href = `/tourister/packagebooking/?package_id=${packageId}`;
       });
     </script>
 

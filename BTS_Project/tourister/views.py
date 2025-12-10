@@ -4,8 +4,11 @@ from rest_framework import status, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import SignupSerializer, RateReviewSerializer, BookingSerializer
+from admin_panel.serializers import PackageSerializer
+from rest_framework.renderers import TemplateHTMLRenderer,JSONRenderer
 from django.views.generic import TemplateView
 from .models import RateReview, Package_Booking
+from admin_panel.models import Package_Details
 from rest_framework.authtoken.models import Token
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
@@ -16,10 +19,14 @@ from django.conf import settings
 print("SMTP HOST:", settings.EMAIL_HOST)
 print("SMTP USER:", settings.EMAIL_HOST_USER)
 
-
-# -------------------- SIGNUP API --------------------
 class Signup(APIView):
     permission_classes = [permissions.AllowAny]
+    renderer_classes = [JSONRenderer,TemplateHTMLRenderer]
+    template_name = "signup.html"
+
+    def get(self, request):
+        # This will render your signup.html in browser
+        return Response({})
 
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -27,85 +34,44 @@ class Signup(APIView):
         if serializer.is_valid():
             user = serializer.save()
 
-            # Get values
-            username = request.data.get("username")
-            email = request.data.get("email")
-            password = request.data.get("password")
+            username = user.username
+            email = user.email
             phone_number = request.data.get("phone_number")
 
-            # ---------------- EMAIL CONTENT ----------------
             subject = "Your KSRTC Budget Tourism Account is Successfully Created"
 
-            # Plain Text Fallback
-            message = (
-                f"Hi {username},\n\n"
-                f"Your KSRTC Budget Tourism account has been created.\n"
-                f"Username: {username}\n"
-                f"Password: {password}\n"
-                f"Phone: {phone_number}\n"
-                f"Email: {email}\n\n"
-                f"Regards,\n"
-                f"KSRTC Budget Tourism Team"
-            )
+            text_message = f"""
+Hi {username},
 
-            # HTML Email (Styled)
+Your KSRTC Budget Tourism account has been created successfully.
+
+Username: {username}
+Phone: {phone_number}
+Email: {email}
+
+Regards,
+KSRTC Budget Tourism Team
+"""
+
             html_message = f"""
-            <!DOCTYPE html>
-            <html>
-            <body style="font-family: Arial, sans-serif; background:#f6f7f9; padding:20px;">
+            <html><body>
+            <h2>KSRTC Budget Tourism</h2>
+            <p>Hi <strong>{username}</strong>,</p>
+            <p>Your account has been created successfully.</p>
 
-                <div style="max-width:600px; margin:auto; background:white; padding:25px;
-                            border-radius:8px; border:1px solid #e0e0e0;">
+            <div>
+                <p><strong>Username:</strong> {username}</p>
+                <p><strong>Phone Number:</strong> {phone_number}</p>
+                <p><strong>Email:</strong> {email}</p>
+            </div>
 
-                    <h2 style="color:#d62828; text-align:center; margin-top:0;">
-                        KSRTC Budget Tourism
-                    </h2>
-
-                    <p style="font-size:15px; color:#333;">Hi <strong>{username}</strong>,</p>
-
-                    <p style="font-size:15px; color:#333;">
-                        Welcome to KSRTC Budget Tourism. Your account has been created successfully.
-                    </p>
-
-                    <h3 style="color:#333; margin-bottom:8px;">Account Information</h3>
-
-                    <div style="background:#f2f2f2; padding:15px; border-radius:6px;">
-                        <p><strong>Username:</strong> {username}</p>
-                        <p><strong>Password:</strong> {password}</p>
-                        <p><strong>Phone Number:</strong> {phone_number}</p>
-                        <p><strong>Email:</strong> {email}</p>
-                    </div>
-
-                    <h3 style="margin-top:20px;">Next Steps</h3>
-                    <ul style="line-height:1.6; color:#333; font-size:15px;">
-                        <li>Login using your username and password.</li>
-                        <li>Explore tourism packages and available services.</li>
-                        <li>Keep your account credentials safe.</li>
-                    </ul>
-
-                    <p style="font-size:14px; color:#555;">
-                        If you did not create this account, please contact our support team immediately.
-                    </p>
-
-                    <p style="font-size:15px; margin-top:25px;">
-                        Thank you for choosing KSRTC Budget Tourism.<br>
-                        We wish you a pleasant and safe travel experience.
-                    </p>
-
-                    <p style="font-weight:bold; margin-top:10px;">
-                        Regards,<br> KSRTC Budget Tourism Team
-                    </p>
-
-                </div>
-
-            </body>
-            </html>
+            <p>Regards,<br>KSRTC Budget Tourism Team</p>
+            </body></html>
             """
 
-            # ---------------- SEND EMAIL ----------------
             send_mail(
                 subject,
-                message,
+                text_message,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 html_message=html_message,
@@ -119,124 +85,148 @@ class Signup(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class Login(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = 'login.html'
+
     def get(self, request):
-        users = User.objects.all()
-        serializer = SignupSerializer(users, many=True)
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+        return Response({"detail": "Not allowed"}, status=405)
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            return Response(
+                {"error": "Username and password are required"},
+                status=400
+            )
+
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            return Response({"error": "Invalid username or password"}, status=401)
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }, status=200)
+
+
+
+class Index(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer,JSONRenderer]
+    template_name = 'index.html'
+
+    def get(self, request):
+
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+
+        
+        package_list = Package_Details.objects.all()[:8]
+        package_serializer = PackageSerializer(package_list, many=True)
+
+
+        
+        review_list = RateReview.objects.all()
+        review_serializer = RateReviewSerializer(review_list, many=True)
+
+        
+        data = {
+            "packages": package_serializer.data,
+            "reviews": review_serializer.data
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+        
+
+
+class Packagelist(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'packagelist.html'
+    
+    def get(self, request, pk=None):
+
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+
+        if pk:
+            try:
+                package = PackageDetails.objects.get(id=pk)   
+            except PackageDetails.DoesNotExist:
+                return Response({"message": "Package not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = PackageSerializer(package)
+            return Response(serializer.data)
+
+        destination = request.GET.get('destination', '')
+        date = request.GET.get('date', '')
+        price = request.GET.get('price', '')
+
+        
+        packages = PackageDetails.objects.all()
+
+        if destination:
+            packages = packages.filter(places__icontains=destination)
+
+        if date:
+            packages = packages.filter(start_date__lte=date, end_date__gte=date)
+
+        if price:
+            try:
+                price = int(price)
+                if price > 50000:
+                    packages = packages.filter(price__gt=50000)
+                else:
+                    packages = packages.filter(price__lte=price)
+            except ValueError:
+                pass  
+
+        serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# -------------------- LOGIN API --------------------
-class Login(APIView):
+
+
+          
+        
+              
+class PackageDetails(APIView):
     permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
-            return Response(
-                {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                    'username': user.username,
-                    'email': user.email,
-                },
-                status=status.HTTP_200_OK
-            )
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-# class Logout (APIView):
-    
-# -------------------- RATE & REVIEW --------------------
-class RateReviewAPI(APIView):
-    permission_classes = [permissions.AllowAny]  
-
-    def post(self, request):
-        serializer = RateReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()  
-            return Response(
-                {"message": "Rate Review created successfully", "data": serializer.data},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request):
-        reviews = RateReview.objects.all()
-        serializer = RateReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
-
-
-class Package_BookingAPI(APIView):
-    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = 'packagedetails.html'
 
     def get(self, request, pk=None):
-        if pk:
-            try:
-                booking = Package_Booking.objects.get(pk=pk)
-            except Package_Booking.DoesNotExist:
-                return Response({"error": "Booking not found"}, status=404)
+        if request.accepted_renderer.format == 'html':
+            return Response({})
 
-            serializer = BookingSerializer(booking)
-            return Response(serializer.data)
+        if not pk:
+            return Response({"message": "Package ID required"}, status=400)
 
-        bookings = Package_Booking.objects.all()
-        serializer = BookingSerializer(bookings, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = BookingSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
-
-    def put(self, request, pk):
         try:
-            booking = Package_Booking.objects.get(pk=pk)
-        except Package_Booking.DoesNotExist:
-            return Response({"error": "Booking not found"}, status=404)
+            package = Package_Details.objects.get(id=pk)
+        except Package_Details.DoesNotExist:
+            return Response({"message": "Package not found"}, status=404)
 
-        serializer = BookingSerializer(booking, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        serializer = PackageSerializer(package)
+        return Response({"package": serializer.data})
 
-        return Response(serializer.errors, status=400)
+        
+    
 
-    def patch(self, request, pk):
-        try:
-            booking = Package_Booking.objects.get(pk=pk)
-        except Package_Booking.DoesNotExist:
-            return Response({"error": "Booking not found"}, status=404)
-
-        serializer = BookingSerializer(booking, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=400)
-
-    def delete(self, request, pk):
-        try:
-            booking = Package_Booking.objects.get(pk=pk)
-        except Package_Booking.DoesNotExist:
-            return Response({"error": "Booking not found"}, status=404)
-
-        booking.delete()
-        return Response({"message": "Booking deleted successfully"}, status=200)
-
-
-# -------------------- FRONTEND PAGES --------------------
-class Package_details(TemplateView):
-    template_name = "package_details.html"
-
-class Index(TemplateView):
-    template_name = "index.html"
-
+       
 class Navbar(TemplateView):
     template_name = "navbar.html"
 
@@ -249,29 +239,116 @@ class Payment(TemplateView):
 class Payment_Success(TemplateView):
     template_name = "payment_success.html"
 
-class front_end_signup(TemplateView):
-    template_name = "signup.html"
+    
+class MyBooking(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = "mybooking.html"
 
-class front_end_login(TemplateView):
-    template_name = "login.html"
+    def get(self, request, pk=None):
+
+        # if request.user.role != "Tourister":
+        #     return Response({"error": "Access denied. Only tourists can view bookings."}, status=403)
+
+        # HTML page load
+        if request.accepted_renderer.format == 'html' and pk is None:
+            return Response({})
+
+        # Tourist bookings only
+        if pk is None:
+            bookings = Package_Booking.objects.filter(user=request.user)
+            serializer = BookingSerializer(bookings, many=True)
+            return Response(serializer.data)
+
+        try:
+            booking = Package_Booking.objects.get(pk=pk, user=request.user)
+        except Package_Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        serializer = BookingSerializer(booking)
+        return Response(serializer.data)
+
+
+
+        
+    def patch(self, request, pk):
+        try:
+            booking = Package_Booking.objects.get(pk=pk)
+        except Package_Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        serializer = BookingSerializer(booking, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=400)
     
-class Package_list(TemplateView):
-    template_name="package_list.html"
+    def delete(self, request, pk):
+        try:
+            booking = Package_Booking.objects.get(pk=pk)
+        except Package_Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=404)
+
+        booking.delete()
+        return Response({"message": "Booking deleted successfully"}, status=200)
     
-class My_Booking(TemplateView):
-    template_name="my_booking.html"
+    def post(self, request):
+        serializer = RateReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()  
+            return Response(
+                {"message": "Rate Review created successfully", "data": serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        
+        
+class PackageBooking(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = "packagebooking.html"
+
+    def get(self, request, pk=None):
+
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+
+        if not pk:
+            return Response({"message": "Package ID required"}, status=400)
+        
+        try:
+            package = Package_Details.objects.get(id=pk)
+        except Package_Details.DoesNotExist:
+            return Response({"message": "Package not found"}, status=404)
+
+        serializer = PackageSerializer(package)
+       
+        return Response(serializer.data)
+
+
+    def post(self, request):
+        serializer = BookingSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            booking = serializer.save()
+            
+            return Response({"message": "Booking Successful", "booking": serializer.data}, status=201)
+        return Response(serializer.errors, status=400)
+
+
+
     
-class Package_Booking_Frontend(TemplateView):
-    template_name="packagebooking.html"
-    
-    
-class LogoutView(APIView):
+
+class Logout(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         try:
-            token = Token.objects.get(user=request.user)
-            token.delete()
-        except Token.DoesNotExist:
-            pass 
-        return HttpResponseRedirect('/login/')
+            refresh_token = request.data.get("refresh")
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"message": "Logout successful"}, status=200)
+        except Exception:
+            return Response({"error": "Invalid refresh token"}, status=400)

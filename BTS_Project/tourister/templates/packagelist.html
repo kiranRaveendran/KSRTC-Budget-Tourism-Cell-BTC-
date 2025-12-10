@@ -127,7 +127,7 @@ async function loadPackages(filters = {}) {
               ${pkg.duration}
             </span>
 
-            <p class="text-gray-600 text-xs mt-2">
+            <p class="text-gray-600 text-sm mt-2 font-bold">
               ${pkg.places}
             </p>
 
@@ -156,7 +156,7 @@ loadPackages();
 
 // Navigate to package details
 function viewPackage(id) {
-  window.location.href = "{% url 'Package_details' %}?id=" + id;
+  window.location.href = "{% url 'tourister:Packagedetails'%}?id=" + id;
 }
 
 // Search button click or input changes

@@ -1,18 +1,19 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-
-from .models import Package_Details, DayWiseItinerary, DepotProfile
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer
+from .models import Package_Details, DayWiseItinerary,User
 from .serializers import (
     PackageSerializer,
     DayWiseItinerarySerializer,
     DepotSignupSerializer,
-    DepotProfileSerializer
 )
 
 # --------------------------- SIGNUP API ---------------------------
-class Signup(APIView):
+class DepotSignup(APIView):
     permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = "depotsignup.html"
 
     def post(self, request):
         serializer = DepotSignupSerializer(data=request.data)
@@ -24,10 +25,12 @@ class Signup(APIView):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request):
-        profiles = DepotProfile.objects.all()
-        serializer = DepotProfileSerializer(profiles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+    def get(self, request, pk=None):
+
+        if request.accepted_renderer.format == 'html':
+            return Response({"package_id": pk})
 
 
 # --------------------------- PACKAGE API ---------------------------
@@ -147,3 +150,48 @@ class DayWiseItineraryAPI(APIView):
             return Response({"message": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         except DayWiseItinerary.DoesNotExist:
             return Response({"message": "Itinerary not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+class Navbar(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = "navbar.html"
+
+    
+    def get(self, request, pk=None):
+
+        if request.accepted_renderer.format == 'html':
+            return Response({})
+        
+        
+        
+class DepotManagerList(APIView):
+    permission_classes = [permissions.AllowAny]
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = "depotmanagers.html"
+
+    def get(self, request):
+
+        managers = User.objects.filter(
+            depotprofile__role="Depot Manager"
+        ).select_related("depotprofile")
+
+        data = [
+            {
+                "id": manager.id,
+                "username": manager.username,
+                "email": manager.email,
+                "depot_name": manager.depotprofile.depot_name,
+                "role": manager.depotprofile.role,
+                "date_joined": manager.date_joined,
+            }
+            for manager in managers
+        ]
+
+        if request.accepted_renderer.format == "html":
+            return Response({"managers": data})
+
+        return Response(data, status=status.HTTP_200_OK)
+

@@ -27,13 +27,14 @@
 
     <!-- Desktop Nav -->
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-      <a href="{% url 'index' %}" class="hover:text-rose-700 transition">Home</a>
-      <a href="{% url 'package list' %}" class="hover:text-rose-700 transition">Packages</a>
+      <a href="{% url 'tourister:index' %}" class="hover:text-rose-700 transition">Home</a>
+      <a href="{% url 'tourister:packagelist' %}" class="hover:text-rose-700 transition">Packages</a>
       <a href="#" class="hover:text-rose-700 transition">About</a>
       <a href="#" class="hover:text-rose-700 transition">Contact</a>
+      <a href="{% url 'tourister:mybooking' %}" class="hover:text-rose-700 transition">My Booking</a>
       
-      <a href="{% url 'frontendsignup' %}" class="px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
-      <a href="{% url 'logout' %}" class="px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Logout</a>
+      <a href="{% url 'tourister:signup' %}" class="px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
+      <a href="{% url 'tourister:logout' %}" class="px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition" id="logoutBtn">Logout</a>
     </nav>
 
     <!-- Mobile Menu Button -->
@@ -49,13 +50,14 @@
 <!-- Mobile Dropdown -->
 <div class="peer-checked:block hidden md:hidden bg-white border-t border-gray-100 shadow-md">
   <nav class="flex flex-col items-center py-4 space-y-3 text-sm font-medium">
-    <a href="{% url 'index' %}" class="hover:text-rose-700 transition">Home</a>
-    <a href="{% url 'package list' %}" class="hover:text-rose-700 transition">Packages</a>
+    <a href="{% url 'tourister:index' %}" class="hover:text-rose-700 transition">Home</a>
+    <a href="{% url 'tourister:packagelist' %}" class="hover:text-rose-700 transition">Packages</a>
     <a href="#" class="hover:text-rose-700 transition">About</a>
     <a href="#" class="hover:text-rose-700 transition">Contact</a>
+    <a href="{% url 'tourister:mybooking' %}" class="hover:text-rose-700 transition">My Booking</a>
    
-    <a href="{% url 'frontendsignup' %}" class="w-3/4 text-center px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
-    <a href="{% url 'logout' %}" class="w-3/4 text-center px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition">Logout</a>
+    <a href="{% url 'tourister:signup' %}" class="w-3/4 text-center px-4 py-2 bg-gradient-to-r from-rose-600 to-amber-400 text-white rounded-lg font-semibold hover:opacity-95 transition">Sign Up</a>
+    <a href="{% url 'tourister:logout' %}" class="w-3/4 text-center px-4 py-2 border border-rose-600 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition" id="logoutBtn">Logout</a>
   </nav>
 </div>
 
@@ -71,26 +73,35 @@
   });
 
 
-  // const token = localStorage.getItem('authToken'); 
+document.getElementById("logoutBtn").addEventListener("click", async () => {
 
-  //       document.getElementById('logoutBtn').addEventListener('click', function() {
-  //           axios.post('http://127.0.0.1:8000/tourister/logout/', {}, {
-  //               headers: {
-  //                   'Authorization': `Token ${token}`
-  //               }
-  //           })
-  //           .then(function(res) {
-  //               alert(res.data.message);
-  //               // Remove token from frontend storage
-  //               localStorage.removeItem('authToken');
-                
-  //               window.location.href = "{% url 'frontend login' %}";
-  //           })
-  //           .catch(function(error) {
-  //               console.error('Logout error:', error);
-  //               alert('Failed to logout. Please try again.');
-  //           });
-  //       });
+    const refresh = localStorage.getItem("refresh");
+
+    try {
+      await axios.post("http://127.0.0.1:8000/tourister/logout/", {
+        refresh: refresh
+      });
+
+      // Remove tokens from localStorage
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+
+      alert("Logged out successfully!");
+
+      // Redirect to login page
+      window.location.href = "{% url 'tourister:login' %}";
+
+    } catch (error) {
+      console.log(error);
+
+      // Remove tokens anyway (force logout)
+      localStorage.removeItem("access");
+      localStorage.removeItem("refresh");
+
+      alert("Logout error. Clearing session.");
+      window.location.href = "{% url 'tourister:login' %}";
+    }
+  });
 </script>
 
 </body>
