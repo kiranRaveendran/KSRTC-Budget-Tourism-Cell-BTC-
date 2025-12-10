@@ -197,12 +197,6 @@ class Packagelist(APIView):
         serializer = PackageSerializer(packages, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-
-
-          
-        
-              
 class PackageDetails(APIView):
     permission_classes = [permissions.AllowAny]
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
@@ -351,4 +345,6 @@ class Logout(APIView):
             token.blacklist()
             return Response({"message": "Logout successful"}, status=200)
         except Exception:
+
             return Response({"error": "Invalid refresh token"}, status=400)
+

@@ -19,4 +19,3 @@ urlpatterns = [
     path('packagebooking/', PackageBooking.as_view(), name='packagebooking'),
     path('packagebooking/<int:pk>/', PackageBooking.as_view(), name='packagebooking'),
 ]
-

@@ -14,6 +14,8 @@ class BusDetails(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buses", null=True)
     package = models.ForeignKey(Package_Details, on_delete=models.CASCADE, related_name="buses", null=True)
+    
+    
 
     bus_name = models.CharField(max_length=100, default="KSRTC BUS", editable=False)
     bus_number = models.CharField(max_length=50)
@@ -27,6 +29,7 @@ class BusDetails(models.Model):
 
 class BusRoute(models.Model):
     bus = models.ForeignKey(BusDetails, on_delete=models.CASCADE, related_name="routes", null=True)
+    
     location = models.CharField(max_length=100)
     arrival_time = models.TimeField()
     departure_time = models.TimeField(null=True, blank=True)
