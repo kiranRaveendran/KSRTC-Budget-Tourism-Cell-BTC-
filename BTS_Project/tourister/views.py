@@ -9,9 +9,6 @@ from rest_framework.renderers import TemplateHTMLRenderer,JSONRenderer
 from django.views.generic import TemplateView
 from .models import RateReview, Package_Booking
 from admin_panel.models import Package_Details
-from rest_framework.authtoken.models import Token
-from django.http import HttpResponseRedirect
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -198,11 +195,6 @@ class Packagelist(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-
-
-          
-        
-              
 class PackageDetails(APIView):
     permission_classes = [permissions.AllowAny]
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
